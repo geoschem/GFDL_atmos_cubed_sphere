@@ -84,7 +84,7 @@ real, allocatable, dimension(:,:,:) :: nest_fx_west_accum, nest_fx_east_accum, n
 
 ! GCHP: parameters rescale_trop_only and show_scaling
 logical, parameter :: rescale_trop_only=.True.
-logical, parameter :: show_scaling=.False.
+logical, parameter :: show_scaling=.False. ! Set to true to print scaling
 
 contains
 
@@ -1144,12 +1144,9 @@ end subroutine offline_tracer_advection
 
          if (globalSums(2) > TINY_DENOMINATOR) then
             scalingR8 =  globalSums(1) / globalSums(2)
-            !#################################################################
-            ! This line was added to ensure strong reproducibility of the code
-            ! SDE 2017-02-17: Disabled as it compromises mass conservation
-            ! EWL TODO: Is this still true?
-            !#################################################################
-            !scaling = REAL(scalingR8, KIND=kind(1.00))
+            if (show_scaling .and. is_master()) &
+                 write(*,'(a,ES23.15)') ' FV3 scalingR8 - 1 (trop): ', scalingR8 - 1.d0
+            scaling = scalingR8
          else
             scaling = 1.0
          end if
